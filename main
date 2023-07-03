@@ -1,0 +1,80 @@
+# Importing required modules
+import pygame
+import sys
+
+# Initialize Pygame
+pygame.init()
+
+# Game parameters
+WIDTH, HEIGHT = 800, 600  # Screen dimensions
+BALL_RADIUS = 10  # Radius of the ball
+PADDLE_WIDTH, PADDLE_HEIGHT = 15, 80  # Dimensions of paddle
+BALL_SPEED = 2  # Speed of the ball
+PADDLE_SPEED = 2  # Speed of the paddle
+
+# Colors
+WHITE = (255, 255, 255)
+BLACK = (0, 0, 0)
+
+# Creating the display surface
+screen = pygame.display.set_mode((WIDTH, HEIGHT))
+
+# Creating the ball and the paddles
+ball = pygame.Rect(WIDTH // 2, HEIGHT // 2, BALL_RADIUS * 2, BALL_RADIUS * 2)
+paddle1 = pygame.Rect(0, HEIGHT // 2, PADDLE_WIDTH, PADDLE_HEIGHT)
+paddle2 = pygame.Rect(WIDTH - PADDLE_WIDTH, HEIGHT // 2, PADDLE_WIDTH, PADDLE_HEIGHT)
+
+# Game's speed vector
+speed = [BALL_SPEED, BALL_SPEED]
+
+# Game loop
+while True:
+    # Event handling
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            pygame.quit()
+            sys.exit()
+
+    # Ball movement
+    ball.move_ip(speed)
+
+    # Ball and wall collision detection
+    if ball.left < 0 or ball.right > WIDTH:
+        speed[0] = -speed[0]
+    if ball.top < 0 or ball.bottom > HEIGHT:
+        speed[1] = -speed[1]
+
+    # Paddle movement
+    keys = pygame.key.get_pressed()
+    if keys[pygame.K_w]:
+        paddle1.move_ip(0, -PADDLE_SPEED)
+    if keys[pygame.K_s]:
+        paddle1.move_ip(0, PADDLE_SPEED)
+    if keys[pygame.K_UP]:
+        paddle2.move_ip(0, -PADDLE_SPEED)
+    if keys[pygame.K_DOWN]:
+        paddle2.move_ip(0, PADDLE_SPEED)
+
+    # Keeping the paddle inside the screen
+    if paddle1.top < 0:
+        paddle1.top = 0
+    if paddle1.bottom > HEIGHT:
+        paddle1.bottom = HEIGHT
+    if paddle2.top < 0:
+        paddle2.top = 0
+    if paddle2.bottom > HEIGHT:
+        paddle2.bottom = HEIGHT
+
+    # Ball and paddle collision detection
+    if ball.colliderect(paddle1) or ball.colliderect(paddle2):
+        speed[0] = -speed[0]
+
+    # Drawing everything
+    screen.fill(BLACK)
+    pygame.draw.rect(screen, WHITE, paddle1)
+    pygame.draw.rect(screen, WHITE, paddle2)
+    pygame.draw.ellipse(screen, WHITE, ball)
+    pygame.draw.aaline(screen, WHITE, (WIDTH // 2, 0), (WIDTH // 2, HEIGHT))
+
+    # Updating the display
+    pygame.display.flip()
